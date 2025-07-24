@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Calendar App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Mode Toggle -->
+  <div class="toggle-container">
+    <label class="switch">
+      <input type="checkbox" id="mode-toggle" />
+      <span class="slider"></span>
+    </label>
+    <span id="mode-label">🌙 Dark Mode</span>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="modal-title">Add Event</h3>
+      <p id="selected-date"></p>
+      <input type="text" id="event-input" placeholder="Event title..." />
+      <input type="time" id="event-time" />
+      <div class="modal-buttons">
+        <button id="save-event">Save</button>
+        <button id="delete-event">Delete</button>
+        <button id="cancel-event">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <h1>My Calendar</h1>
+  <div class="calendar-header">
+    <button id="prev">←</button>
+    <h2 id="month-year">Month Year</h2>
+    <button id="next">→</button>
+  </div>
+
+  <div id="calendar"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
