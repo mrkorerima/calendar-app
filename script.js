@@ -1,3 +1,20 @@
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    currentUser = user;
+    document.getElementById("auth-container").classList.add("hidden");
+    document.getElementById("user-info").classList.remove("hidden");
+    document.getElementById("user-email").textContent = user.email;
+
+    loadEvents(); // user-specific events
+    updateCalendar();
+  } else {
+    currentUser = null;
+    document.getElementById("auth-container").classList.remove("hidden");
+    document.getElementById("user-info").classList.add("hidden");
+    calendar.innerHTML = ''; // hide calendar
+  }
+});
+
 let currentUser = null;
 
 // Login
