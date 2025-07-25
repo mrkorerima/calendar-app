@@ -1,6 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-database-compat.js"></script>
+
+<script>
+  // Your Firebase config (from Firebase Console)
+  const firebaseConfig = {
+    apiKey: "AIzaSyABQyc7KgtYFIkEBJV1pNSChzM2wgrJl0I",
+    authDomain: "calendarapp-4d5a8.firebaseapp.com",
+    projectId: "calendarapp-4d5a8",
+    storageBucket: "calendarapp-4d5a8.firebasestorage.app",
+    messagingSenderId: "461956747408",
+    appId: "1:461956747408:web:1326e80de4df8f2fec8815"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
+
   <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <meta name="theme-color" content="#0ff">
@@ -34,6 +52,19 @@
       </div>
     </div>
   </div>
+<div id="auth-container">
+  <div id="user-info" class="hidden">
+    <p id="user-email"></p>
+    <button id="logout-btn">Log Out</button>
+  </div>
+
+  <div id="login-form">
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button id="login-btn">Log In</button>
+    <button id="signup-btn">Sign Up</button>
+  </div>
+</div>
 
   <h1>My Calendar</h1>
   <div class="calendar-header">
