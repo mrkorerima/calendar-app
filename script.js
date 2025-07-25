@@ -1,3 +1,26 @@
+let currentUser = null;
+
+// Login
+document.getElementById("login-btn").addEventListener("click", () => {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
+  firebase.auth().signInWithEmailAndPassword(email, pass)
+    .catch(err => alert(err.message));
+});
+
+// Signup
+document.getElementById("signup-btn").addEventListener("click", () => {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
+  firebase.auth().createUserWithEmailAndPassword(email, pass)
+    .catch(err => alert(err.message));
+});
+
+// Logout
+document.getElementById("logout-btn").addEventListener("click", () => {
+  firebase.auth().signOut();
+});
+
 const calendar = document.getElementById('calendar');
 let events = {};
 
