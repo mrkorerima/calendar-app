@@ -1,192 +1,171 @@
-// === Theme Switch ===
+// === Theme Toggle ===
 const modeToggle = document.getElementById('mode-toggle');
-const modeLabel = document.getElementById('mode-label');
-
+const modeLabel  = document.getElementById('mode-label');
 modeToggle.addEventListener('change', () => {
   document.body.classList.toggle('light');
   const mode = document.body.classList.contains('light') ? 'light' : 'dark';
   modeLabel.textContent = mode === 'light' ? '☀️ Light Mode' : '🌙 Dark Mode';
   localStorage.setItem('calendar-mode', mode);
 });
-
-// Load theme
-const savedMode = localStorage.getItem('calendar-mode');
-if (savedMode === 'light') {
+if (localStorage.getItem('calendar-mode') === 'light') {
   document.body.classList.add('light');
   modeToggle.checked = true;
   modeLabel.textContent = '☀️ Light Mode';
 }
 
-// === Firebase Config ===
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-firebase.initializeApp(firebaseConfig);
-
-// === Firebase Auth Logic ===
+// === Firebase Auth Setup ===
 let currentUser = null;
 let events = {};
-
+// Login
 document.getElementById("login-btn").addEventListener("click", () => {
   const email = document.getElementById("email").value;
   const pass = document.getElementById("password").value;
-  firebase.auth().signInWithEmailAndPassword(email, pass).catch(err => alert(err.message));
+  firebase.auth().signInWithEmailAndPassword(email, pass)
+    .catch(err => alert(err.message));
 });
-
+// Signup
 document.getElementById("signup-btn").addEventListener("click", () => {
   const email = document.getElementById("email").value;
   const pass = document.getElementById("password").value;
-  firebase.auth().createUserWithEmailAndPassword(email, pass).catch(err => alert(err.message));
+  firebase.auth().createUserWithEmailAndPassword(email, pass)
+    .catch(err => alert(err.message));
 });
-
+// Logout
 document.getElementById("logout-btn").addEventListener("click", () => {
   firebase.auth().signOut();
 });
-
+// Auth-state listener
 firebase.auth().onAuthStateChanged(user => {
+  const authContainer = document.getElementById("auth-container");
+  const userInfo      = document.getElementById("user-info");
   if (user) {
     currentUser = user;
-    document.getElementById("auth-container").classList.add("hidden");
-    document.getElementById("user-info").classList.remove("hidden");
+    authContainer.classList.add("hidden");
+    userInfo.classList.remove("hidden");
     document.getElementById("user-email").textContent = user.email;
     loadEvents();
     updateCalendar();
   } else {
     currentUser = null;
-    document.getElementById("auth-container").classList.remove("hidden");
-    document.getElementById("user-info").classList.add("hidden");
-    calendar.innerHTML = '';
+    authContainer.classList.remove("hidden");
+    userInfo.classList.add("hidden");
+    document.getElementById("calendar").innerHTML = '';
   }
 });
 
-// === Calendar Logic ===
+// === Calendar Rendering ===
 const calendar = document.getElementById('calendar');
 let currentYear, currentMonth;
 const today = new Date();
 
 function generateCalendar(year, month) {
-  const date = new Date(year, month, 1);
+  const first = new Date(year, month, 1);
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDay = date.getDay();
-
+  const startDay = first.getDay();
   let html = '<div class="calendar-grid">';
-  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  for (let day of weekdays) html += `<div class="day-name">${day}</div>`;
-  for (let i = 0; i < firstDay; i++) html += '<div class="day empty"></div>';
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => html += `<div class="day-name">${d}</div>`);
+  for (let i = 0; i < startDay; i++) html += '<div class="day empty"></div>';
 
-  for (let i = 1; i <= daysInMonth; i++) {
-    const dateKey = `${year}-${(month + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
-    const hasEvents = events[dateKey]?.length;
-    html += `<div class="day" data-date="${dateKey}">${i}
-      ${hasEvents ? `<div class="event">${events[dateKey][0].title}</div>` : ''}
+  for (let day = 1; day <= daysInMonth; day++) {
+    const key = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const evList = events[key] || [];
+    const evHTML = evList.map(ev => `<div class="event">${ev.time} – ${ev.title}</div>`).join('');
+    html += `<div class="day" data-date="${key}">
+      <div class="date-number">${day}</div>${evHTML}
     </div>`;
   }
-
   html += '</div>';
   calendar.innerHTML = html;
 
-  document.querySelectorAll('.day:not(.empty)').forEach(day => {
-    day.addEventListener('click', () => {
-      const selectedDate = day.getAttribute('data-date');
-      document.getElementById('selected-date').textContent = selectedDate;
-      document.getElementById('event-input').value = '';
-      document.getElementById('event-time').value = '';
+  document.querySelectorAll('.day:not(.empty)').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const d = cell.getAttribute('data-date');
+      document.getElementById('selected-date').textContent = d;
+      const evs = events[d] || [];
+      if (evs.length) {
+        const last = evs[evs.length-1];
+        document.getElementById('event-input').value = last.title;
+        document.getElementById('event-time').value = last.time;
+      } else {
+        document.getElementById('event-input').value = '';
+        document.getElementById('event-time').value = '';
+      }
       document.getElementById('modal').classList.remove('hidden');
     });
   });
 }
 
 function updateCalendar() {
-  const monthYear = new Date(currentYear, currentMonth).toLocaleString('default', {
-    month: 'long',
-    year: 'numeric'
-  });
-  document.getElementById('month-year').textContent = monthYear;
+  document.getElementById('month-year').textContent =
+    new Date(currentYear, currentMonth).toLocaleString('default', {month:'long',year:'numeric'});
   generateCalendar(currentYear, currentMonth);
 }
 
+// month navigation
 document.getElementById('prev').addEventListener('click', () => {
-  currentMonth--;
-  if (currentMonth < 0) {
-    currentMonth = 11;
-    currentYear--;
-  }
+  currentMonth--; if (currentMonth < 0) { currentMonth = 11; currentYear--; }
   updateCalendar();
 });
-
 document.getElementById('next').addEventListener('click', () => {
-  currentMonth++;
-  if (currentMonth > 11) {
-    currentMonth = 0;
-    currentYear++;
-  }
+  currentMonth++; if (currentMonth > 11) { currentMonth = 0; currentYear++; }
   updateCalendar();
 });
 
-document.getElementById('cancel-event').addEventListener('click', () => {
-  document.getElementById('modal').classList.add('hidden');
-});
-
+// modal controls
+document.getElementById('cancel-event').addEventListener('click', () =>
+  document.getElementById('modal').classList.add('hidden')
+);
 document.getElementById('save-event').addEventListener('click', () => {
   const date = document.getElementById('selected-date').textContent;
-  const title = document.getElementById('event-input').value;
+  const title = document.getElementById('event-input').value.trim();
   const time = document.getElementById('event-time').value;
-
   if (!title || !time) return alert("Please fill in both title and time.");
-
   const datetime = `${date}T${time}`;
-  if (!events[date]) events[date] = [];
+  events[date] = events[date] || [];
   events[date].push({ title, time, datetime, notified: false });
-
-  saveEvents();
-  updateCalendar();
+  saveEvents(); updateCalendar();
+  document.getElementById('modal').classList.add('hidden');
+});
+document.getElementById('delete-event').addEventListener('click', () => {
+  const date = document.getElementById('selected-date').textContent;
+  delete events[date];
+  saveEvents(); updateCalendar();
   document.getElementById('modal').classList.add('hidden');
 });
 
+// storage per-user
 function saveEvents() {
-  if (currentUser) {
-    localStorage.setItem(`calendarEvents-${currentUser.uid}`, JSON.stringify(events));
-  }
+  if (!currentUser) return;
+  localStorage.setItem(`calendarEvents-${currentUser.uid}`, JSON.stringify(events));
 }
-
 function loadEvents() {
-  if (currentUser) {
-    const stored = localStorage.getItem(`calendarEvents-${currentUser.uid}`);
-    if (stored) events = JSON.parse(stored);
-    else events = {};
-  }
+  if (!currentUser) return;
+  const v = localStorage.getItem(`calendarEvents-${currentUser.uid}`);
+  events = v ? JSON.parse(v) : {};
 }
 
-// === Notification Feature ===
+// notification scheduling
 if ('Notification' in window && Notification.permission !== 'granted') {
   Notification.requestPermission();
 }
-
-function checkForNotifications() {
-  const nowISO = new Date().toISOString().slice(0, 16);
-  for (const date in events) {
-    events[date].forEach(ev => {
-      if (ev.datetime === nowISO && !ev.notified) {
-        new Notification("🔔 Event Reminder", { body: `${ev.time} - ${ev.title}` });
+function checkNotifications() {
+  const now = new Date().toISOString().slice(0,16);
+  for (let d in events) {
+    events[d].forEach(ev => {
+      if (ev.datetime === now && !ev.notified) {
+        new Notification("Reminder", { body: `${ev.time} – ${ev.title}` });
         ev.notified = true;
         saveEvents();
       }
     });
   }
 }
-setInterval(checkForNotifications, 60 * 1000);
+setInterval(checkNotifications, 60_000);
 
-// === Start Calendar ===
+// initialize
 currentYear = today.getFullYear();
 currentMonth = today.getMonth();
-
-// === Service Worker ===
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js')
-    .then(() => console.log('Service Worker registered'));
+    .then(() => console.log('SW Registered'));
 }
