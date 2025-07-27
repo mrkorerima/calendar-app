@@ -1,35 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-database-compat.js"></script>
-
-<script>
-  // Your Firebase config (from Firebase Console)
-  const firebaseConfig = {
-    apiKey: "AIzaSyABQyc7KgtYFIkEBJV1pNSChzM2wgrJl0I",
-    authDomain: "calendarapp-4d5a8.firebaseapp.com",
-    projectId: "calendarapp-4d5a8",
-    storageBucket: "calendarapp-4d5a8.firebasestorage.app",
-    messagingSenderId: "461956747408",
-    appId: "1:461956747408:web:1326e80de4df8f2fec8815"
-  };
-  firebase.initializeApp(firebaseConfig);
-</script>
-
-  <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png">
-<meta name="theme-color" content="#0ff">
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Calendar App</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192.png">
+  <meta name="theme-color" content="#0ff">
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-messaging-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyABQyc7KgtYFIkEBJV1pNSChzM2wgrJl0I",
+      authDomain: "calendarapp-4d5a8.firebaseapp.com",
+      projectId: "calendarapp-4d5a8",
+      storageBucket: "calendarapp-4d5a8.appspot.com",
+      messagingSenderId: "461956747408",
+      appId: "1:461956747408:web:1326e80de4df8f2fec8815"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </head>
 <body>
-  <!-- Mode Toggle -->
+
+  <!-- 🌙 Dark/Light Mode Toggle -->
   <div class="toggle-container">
     <label class="switch">
       <input type="checkbox" id="mode-toggle" />
@@ -38,34 +38,20 @@
     <span id="mode-label">🌙 Dark Mode</span>
   </div>
 
-  <!-- Modal -->
-  <div id="modal" class="modal hidden">
-    <div class="modal-content">
-      <h3 id="modal-title">Add Event</h3>
-      <p id="selected-date"></p>
-      <input type="text" id="event-input" placeholder="Event title..." />
-      <input type="time" id="event-time" />
-      <div class="modal-buttons">
-        <button id="save-event">Save</button>
-        <button id="delete-event">Delete</button>
-        <button id="cancel-event">Cancel</button>
-      </div>
-    </div>
-  </div>
-<div id="auth-container">
-  <div id="user-info" class="hidden">
-    <p id="user-email"></p>
-    <button id="logout-btn">Log Out</button>
-  </div>
-
-  <div id="login-form">
+  <!-- 🔐 Authentication Section -->
+  <div id="auth-container">
     <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
     <button id="login-btn">Log In</button>
     <button id="signup-btn">Sign Up</button>
   </div>
-</div>
 
+  <div id="user-info" class="hidden">
+    <p id="user-email"></p>
+    <button id="logout-btn">Log Out</button>
+  </div>
+
+  <!-- 🗓️ Calendar Title -->
   <h1>My Calendar</h1>
   <div class="calendar-header">
     <button id="prev">←</button>
@@ -73,8 +59,31 @@
     <button id="next">→</button>
   </div>
 
+  <!-- 📅 Calendar Grid -->
   <div id="calendar"></div>
 
+  <!-- 📌 Event Modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="modal-title">Add Event</h3>
+      <p id="selected-date">Date</p>
+      <input type="text" id="event-input" placeholder="Event title..." />
+      <input type="time" id="event-time" />
+      <select id="event-recur">
+        <option value="none">No Repeat</option>
+        <option value="daily">Repeat Daily</option>
+        <option value="weekly">Repeat Weekly</option>
+        <option value="monthly">Repeat Monthly</option>
+      </select>
+      <div class="modal-buttons">
+        <button id="save-event">Save</button>
+        <button id="delete-event">Delete</button>
+        <button id="cancel-event">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📜 App Logic -->
   <script src="script.js"></script>
 </body>
 </html>
