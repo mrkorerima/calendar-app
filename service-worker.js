@@ -1,5 +1,6 @@
-const cacheName = "calendar-cache-v1";
-const filesToCache = [
+const CACHE_NAME = 'calendar-app-cache-v1';
+
+const FILES_TO_CACHE = [
   '/',
   '/index.html',
   '/style.css',
@@ -9,14 +10,34 @@ const filesToCache = [
   '/icon-512.png'
 ];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(cacheName).then(cache => cache.addAll(filesToCache))
+// Install Service Worker and cache files
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(FILES_TO_CACHE))
   );
 });
 
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then(response => response || fetch(e.request))
+// Serve cached files when offline
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
+    })
+  );
+});
+
+// Clean up old caches
+self.addEventListener('activate', (event) => {
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then((keyList) =>
+      Promise.all(
+        keyList.map((key) => {
+          if (!cacheWhitelist.includes(key)) {
+            return caches.delete(key);
+          }
+        })
+      )
+    )
   );
 });
