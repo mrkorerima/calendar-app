@@ -136,6 +136,11 @@ function schedulePushToken(){
   });
   messaging.onMessage(payload => alert('Push Notification:\n'+payload.notification.body));
 }
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js')
+    .then(() => console.log('✅ Service Worker registered'))
+    .catch(err => console.error('❌ Service Worker error:', err));
+}
 
 // initialize
 initCalendar();
