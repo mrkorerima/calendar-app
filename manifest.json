@@ -1,10 +1,11 @@
 {
   "name": "My Calendar App",
   "short_name": "Calendar",
-  "start_url": "index.html",
+  "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#111",
+  "background_color": "#111111",
   "theme_color": "#0ff",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "icon-192.png",
